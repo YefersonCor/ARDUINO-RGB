@@ -1,0 +1,66 @@
+#define LED1_R 11   
+#define LED1_G 9  
+#define LED1_B 10  
+#define LED2_R 8 
+#define LED2_G 6  
+#define LED2_B 7
+#define LED3_R 4 
+#define LED3_G 5
+#define LED3_B 3
+#define CONTROL_PIN 12 
+
+const int ledPins[3][3] = {
+  {LED1_R, LED1_G, LED1_B},
+  {LED2_R, LED2_G, LED2_B},
+  {LED3_R, LED3_G, LED3_B}
+};
+
+void setup() {
+  for (int i = 0; i < 3; i++) {
+    for (int j = 0; j < 3; j++) {
+      pinMode(ledPins[i][j], OUTPUT);
+    }
+  }
+  pinMode(CONTROL_PIN, INPUT);
+  Serial.begin(9600);
+}
+
+void setLedColors(int ledIndex, int r, int g, int b) {
+  for (int i = 0; i < 3; i++) {
+    analogWrite(ledPins[ledIndex][i], (i == 0 ? r : (i == 1 ? g : b)));
+  }
+}
+
+void apagarSemaforos() {
+  for (int i = 0; i < 3; i++) {
+    setLedColors(i, 0, 0, 0);
+  }
+}
+
+void cicloSemaforos() {
+  setLedColors(0, 0, 0, 255);  
+  setLedColors(1, 255, 0, 0);  
+  setLedColors(2, 255, 0, 0);  
+  delay(2000);             
+  if (digitalRead(CONTROL_PIN) == LOW) return; 
+
+  setLedColors(0, 255, 0, 0);  
+  setLedColors(1, 0, 0, 255);  
+  setLedColors(2, 255, 0, 0);  
+  delay(2000);            
+  if (digitalRead(CONTROL_PIN) == LOW) return; 
+
+  setLedColors(0, 255, 0, 0);  
+  setLedColors(1, 255, 0, 0);  
+  setLedColors(2, 0, 0, 255);  
+  delay(2000);             
+  if (digitalRead(CONTROL_PIN) == LOW) return; 
+}
+
+void loop() {
+  if (digitalRead(CONTROL_PIN) == HIGH) {
+    cicloSemaforos();
+  } else {
+    apagarSemaforos();
+  }
+}
